@@ -1,8 +1,17 @@
-import edge from "npm:edge-js";
+const denoDb = Deno.dlopen(
+  "./oledb.cs",
+  {
+    "Invoke": {
+      parameters: ["buffer"],
+      result: "buffer",
+      nonblocking: true,
+    },
+  } as const,
+);
 
-const adodb = edge.func("./oledb.cs");
+export default async (options: {dsn: string; query: string}) => {
+  return await denoDb.symbols.Invoke(options)
 
-export default (options: {dsn: string; query: string}) => {
   return new Promise(function (resolve, reject) {
     adodb(options, (error, result) => {
       if (error) {
